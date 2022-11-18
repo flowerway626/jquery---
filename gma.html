@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
+    <title>game</title>
+    <style>
+        body {
+            background: rgb(21, 92, 27);
+            color: #fff;
+            height: 100%;
+        }
+
+        #area {
+            width: 600px;
+            height: 400px;
+            background: #000;
+            position: absolute;
+            /* margin: auto; */
+            left: 50%;
+            top: 50%;
+            overflow: hidden;
+            background: #333;
+            transform: translate(-50%, -50%);
+        }
+
+        img {
+            height: 100px;
+            position: absolute;
+            user-select: none;
+            /* 設定無法選取圖片 */
+            -webkit-user-select: none;
+            -webkit-user-drag: none;
+        }
+
+        .little {
+            /* 忽略點擊事件 */
+            pointer-events: none;
+        }
+
+        #text {
+            margin: 250px 200px;
+            float: left;
+            font-size: 18px;
+        }
+
+        #high {
+            margin: 250px 200px;
+            float: right;
+            font-size: 18px;
+        }
+
+        #btnStart {
+            font-size: 30px;
+            position: absolute;
+            left: 50%;
+            top: 70%;
+            transform: translate(-50%, -50%);
+            padding: 0.2rem 0.5rem;
+            background: rgb(149, 203, 154);
+            cursor: pointer;
+        }
+
+        #btnStart:hover {
+            background: rgb(184, 206, 186);
+        }
+
+        #neighbour,
+        #index {
+            width: 450px;
+            height: 280px;
+            position: absolute;
+            left: 50%;
+            top: 30%;
+            transform: translate(-50%, -50%);
+        }
+
+        #neighbour {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="btnStart">開始</div>
+    <div id="text">
+        <p>| 剩餘 | <span id="text-time">0</span>秒</p>
+        <p>| 得分 | <span id="text-score">0</span>分</p>
+    </div>
+    <div id="high">
+        <p>| 紀錄者 | <span id="text-highname">0</span></p>
+        <p>| 最高分 | <span id="text-highscore">0</span>分</p>
+    </div>
+    <img src="./index.gif" id="index" alt="">
+    <img src="./neighbour.gif" alt="" id="neighbour">
+    <div id="area"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js'
+        integrity='sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA=='
+        crossorigin='anonymous'></script>
+    <script>
+        // 分數
+        let score = 0
+        // 計時器
+        let timer = 0
+        // 倒數
+        let countdown = 0
+        const highscore = localStorage.totoro ? JSON.parse(localStorage.totoro) : { name: '', score: 0 }
+        $('#text-highscore').text(highscore.score)
+        $('#text-highname').text(highscore.name)
+        $('#area').css('display', 'none')
+        function move(totoro, mini) {
+            const top = Math.round(Math.random() * 100) + '%'
+            const left = Math.round(Math.random() * 100) + '%'
+            totoro.stop().animate({ top, left }, 2000, function () {
+                if ($('#btnStart').attr('disabled') === 'disable') move(totoro)
+            })
+        }
+        $('#btnStart').click(function () {
+            score = 0
+            countdown = 20
+            $('#text-score').text(score)
+            $('#text-time').text(countdown)
+            $('#area').fadeIn()
+            $('#index').css('display', 'none')
+
+            timer = setInterval(() => {
+                countdown--
+                $('#text-time').text(countdown)
+
+                const random = Math.ceil(Math.random() * 15)
+                if (random > 5 && $('.big').length < 5) {
+                    const top = Math.round(Math.random() * 100) + '%'
+                    const left = Math.round(Math.random() * 100) + '%'
+                    const totoro = $(`<img src="./big.png" class="big" style="top: ${top}; left: ${left}">`)
+                    $('#area').append(totoro)
+                    move(totoro)
+                }
+                // 時間到
+                if (countdown === 0) {
+                    clearInterval(timer)
+                    $('#area img').remove()
+                    $('#neighbour').css('display', 'block')
+                    $('#area').fadeOut()
+                    $('#btnStart').text('再來一次')
+                    Swal.fire({
+                        icon: 'info',
+                        title: '時間到',
+                        text: `你的分數是 ${score} 分`
+                    })
+                    // 破紀錄時
+                    if (score > highscore.score) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: '新紀錄！',
+                            text: '留下大名！',
+                            input: 'text',
+                            inputPlaceholder: 'your name',
+                            inputAttributes: {
+                                reqired: true
+                            },
+                            validationMessage: '必填'
+                        }).then(result => {
+                            highscore.name = result.value
+                            highscore.score = score
+                            $('#text-highname').text(highscore.name)
+                            $('#text-highscore').text(highscore.score)
+                            localStorage.totoro = JSON.stringify(highscore)
+                        })
+                    }
+                }
+            }, 1000);
+        })
+        $('#area').on('click', '.big', function () {
+            score++
+            $('#text-score').text(score)
+            $(this).stop()
+            $(this).attr('src', './little.png')
+            $(this).fadeOut(1000)
+            $(this).removeClass('big').addclass('little')
+        })
+    </script>
+</body>
+
+</html>
