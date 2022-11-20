@@ -19,12 +19,12 @@
             height: 400px;
             background: #000;
             position: absolute;
-            /* margin: auto; */
             left: 50%;
             top: 50%;
             overflow: hidden;
             background: #333;
             transform: translate(-50%, -50%);
+            cursor: url('./mini_cursor.png') 50 50, auto;
         }
 
         img {
@@ -42,13 +42,13 @@
         }
 
         #text {
-            margin: 250px 200px;
+            margin: 250px 180px;
             float: left;
             font-size: 18px;
         }
 
         #high {
-            margin: 250px 200px;
+            margin: 250px 180px;
             float: right;
             font-size: 18px;
         }
@@ -87,12 +87,12 @@
 <body>
     <div id="btnStart">開始</div>
     <div id="text">
-        <p>| 剩餘 | <span id="text-time">0</span>秒</p>
-        <p>| 得分 | <span id="text-score">0</span>分</p>
+        <p>| 剩餘 | <span id="text-time">0</span> 秒</p>
+        <p>| 得分 | <span id="text-score">0</span> 分</p>
     </div>
     <div id="high">
-        <p>| 紀錄者 | <span id="text-highname">0</span></p>
-        <p>| 最高分 | <span id="text-highscore">0</span>分</p>
+        <p>| 紀錄者 | <span id="text-highname">-</span></p>
+        <p>| 最高分 | <span id="text-highscore">0</span> 分</p>
     </div>
     <img src="./index.gif" id="index" alt="">
     <img src="./neighbour.gif" alt="" id="neighbour">
@@ -157,7 +157,7 @@
                     if (score > highscore.score) {
                         Swal.fire({
                             icon: 'warning',
-                            title: '新紀錄！',
+                            title: '新紀錄',
                             text: '留下大名！',
                             input: 'text',
                             inputPlaceholder: 'your name',
