@@ -11,7 +11,7 @@
     * {
       margin: 0;
       padding: 0;
-      transition: 0.3s;
+      transition: 0.s;
     }
 
     body {
@@ -126,45 +126,47 @@
 <body>
   <div id="btnStart">開始</div>
   <div id="text">
-    <p>| 剩餘 | <span id="text-time">0</span>秒</p>
-    <p>| 得分 | <span id="text-score">0</span>分</p>
+    <p>| 剩餘 | <span id="text-time">0</span> 秒</p>
+    <p>| 得分 | <span id="text-score">0</span> 分</p>
+    <p>| 角色1 | <span id="text-role1"></span></p>
+    <p>| 角色2 | <span id="text-role2"></span></p>
   </div>
   <div id="high">
     <p>| 紀錄者 | <span id="text-highname">0</span></p>
-    <p>| 最高分 | <span id="text-highscore">0</span>分</p>
+    <p>| 最高分 | <span id="text-highscore">0</span> 分</p>
   </div>
   <div class="container">
     <div id="left">
       <div class="theme" style="background:#fccc00">
-        <img src="./images/chimmy1.png">
+        <img src="./images/chimmy1.png" data-title="chimmy">
         <p>CHIMMY</p>
       </div>
       <div class="theme" style="background:rgb(236, 122, 173)">
-        <img src="./images/cooky1.png">
+        <img src="./images/cooky1.png" data-title="cooky">
         <p>COOKY</p>
       </div>
       <div class="theme" style="background:#54C3F1">
-        <img src="./images/koya1.png">
+        <img src="./images/koya1.png" data-title="koya">
         <p>KOYA</p>
       </div>
       <div class="theme" style="background:#BBA4CE">
-        <img src="./images/mang1.png">
+        <img src="./images/mang1.png" data-title="mang">
         <p>MANG</p>
       </div>
       <div class="theme" style="background:#E72D30">
-        <img src="./images/rj1.png">
+        <img src="./images/rj1.png" data-title="rj">
         <p>RJ</p>
       </div>
       <div class="theme" style="background:#F6AC01">
-        <img src="./images/shooky1.png">
+        <img src="./images/shooky1.png" data-title="shooky">
         <p>SHOOKY</p>
       </div>
       <div class="theme" style="background:#E2E2E2">
-        <img src="./images/van1.png">
+        <img src="./images/van1.png" data-title="van">
         <p>VAN</p>
       </div>
       <div class="theme" style="background:#5A77BB">
-        <img src="./images/tata1.png">
+        <img src="./images/tata1.png" data-title="tata">
         <p>TATA</p>
       </div>
     </div>
@@ -187,104 +189,119 @@
     integrity='sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA=='
     crossorigin='anonymous'></script>
   <script>
-    // 分數
-    let score = 0
-    // 計時器
     let timer = 0
     // 倒數
     let countdown = 0
+    // 選擇角色點擊次數
+    let click = 0
+    // 角色檔名
+    let role1 = '', role2 = ''
+    // 分數
+    let role1Score = 0, role2Score = 0, totalScore = 0
+    let role1Num = Math.round(Math.random() * 15)
+    let role2Num = Math.round(Math.random() * 15)
+
     const highscore = localStorage.btgame ? JSON.parse(localStorage.btgame) : { name: '', score: 0 }
     $('#text-highscore').text(highscore.score)
     $('#text-highname').text(highscore.name)
     $('#area').css('display', 'none')
-    let click = 0
+    // 選定正負角色
     $('#left .theme').each(function () {
       $(this).on('click', function () {
         click++
         if (click === 1) {
           $(this).css('border', '5px solid lightgray')
           $('#right .theme').eq(0).find('img').attr('src', $(this).find('img').attr('src'))
+          $('#right .theme').eq(0).find('img').attr('data-title', $(this).find('img').attr('data-title'))
           $('#right .theme').eq(0).find('p').text($(this).find('p').text())
           $('#right .theme').eq(0).css('background', $(this).css('background'))
+          role1 = $('#right .theme').find('img').eq(0).attr('data-title')
         } else if (click === 2) {
           $(this).css('border', '5px solid lightgray')
           $('#right .theme').eq(1).find('img').attr('src', $(this).find('img').attr('src'))
           $('#right .theme').eq(1).find('p').text($(this).find('p').text())
+          $('#right .theme').eq(1).find('img').attr('data-title', $(this).find('img').attr('data-title'))
           $('#right .theme').eq(1).css('background', $(this).css('background'))
+          role2 = $('#right .theme').find('img').eq(1).attr('data-title')
         }
       })
     })
+    // 重選復原
     $('.again').on('click', function () {
       click = 0
       $('#right .theme').find('img').attr('src', './images/none.png')
       $('#right .theme').find('p').text('?')
+      $('#right .theme').find('img').attr('data-title', '')
       $('#right .theme').css('background', '')
       $('#left .theme').css('border', '1px solid #333')
     })
 
+    // ------------------------------- function -------------------------------
     // 主要移動
-    function move(rj) {
+    function move(first) {
       const top = Math.round(Math.random() * 100) + '%'
       const left = Math.round(Math.random() * 100) + '%'
-      rj.stop().animate({ top, left }, 2000, function () {
-        if ($('#btnStart').attr('disabled') === 'disable') move(rj)
+      first.stop().animate({ top, left }, 2000, function () {
+        if ($('#btnStart').attr('disabled') === 'disable') move(first)
       })
       setTimeout(() => {
-        rj.fadeOut(500)
-      }, 2500);
+        first.fadeOut(400)
+      }, 500);
     }
     // 次要移動
-    function move(van) {
+    function move(second) {
       const top = Math.round(Math.random() * 100) + '%'
       const left = Math.round(Math.random() * 100) + '%'
-      van.stop().animate({ top, left }, 2000, function () {
-        if ($('#btnStart').attr('disabled') === 'disable') move(van)
+      second.stop().animate({ top, left }, 1000, function () {
+        if ($('#btnStart').attr('disabled') === 'disable') move(second)
       })
       setTimeout(() => {
-        van.fadeOut(500)
+        second.fadeOut(300)
       }, 2500);
     }
-
+    // ------------------------------- 開始遊戲 -------------------------------
     $('#btnStart').click(function () {
       score = 0
       countdown = 20
-      $('#text-score').text(score)
+      $('#right, #left').fadeOut()
+      $('#text-score').text(totalScore)
       $('#text-time').text(countdown)
+      $('#text-role1').text(`${role1Score} / ${role1Num}`)
+      $('#text-role2').text(`${role2Score} / ${role2Num}`)
       $('#area, #text, #high').fadeIn()
-      $('#index').css('display', 'none')
+      // 過關點擊要求數
 
       timer = setInterval(() => {
         countdown--
         $('#text-time').text(countdown)
-
-        // random > 5const random = Math.ceil(Math.random() * 20)
-        // setInterval(() => {
-        // if ($('.one').length < 10) {
+        // 角色 1
         let top = Math.round(Math.random() * 100) + '%'
         let left = Math.round(Math.random() * 100) + '%'
-        const rj = $(`<img src="./images/rj1.png" class="one" alt="rj" style="top: ${top}; left: ${left}">`)
-        $('#area').append(rj)
-        move(rj)
-        // }
-        // }, 800);
+        const first = $(`<img src="./images/${role1}1.png" class="one" data-title="${role1}" style="top: ${top}; left: ${left}">`)
+        $('#area').append(first)
+        move(first)
+        // 角色 2
         setTimeout(() => {
           top = Math.round(Math.random() * 100) + '%'
           left = Math.round(Math.random() * 100) + '%'
-          const van = $(`<img src="./images/van1.png" class="one" alt="van" style="top: ${top}; left: ${left}">`)
-          $('#area').append(van)
-          move(van)
+          const second = $(`<img src="./images/${role2}1.png" class="one" data-title="${role2}" style="top: ${top}; left: ${left}">`)
+          $('#area').append(second)
+          move(second)
         }, 500);
-        // }
-        // 時間到
+
+        // ------------------------------- 時間停止 -------------------------------
         if (countdown === 0) {
           clearInterval(timer)
           $('#area img').remove()
-          $('#area,  #text, #high').fadeOut()
-          $('#btnStart').text('再來一次')
+          $('#area, #text, #high').fadeOut()
+          if (role1Score >= role1Num && role2Score >= role2Num) alert('通關')
+          else alert('GG')
           Swal.fire({
             icon: 'info',
             title: '時間到',
             text: `你的分數是 ${score} 分`
+          }).then(result => {
+            location.reload()
           })
           // 破紀錄時
           if (score > highscore.score) {
@@ -304,6 +321,7 @@
               $('#text-highname').text(highscore.name)
               $('#text-highscore').text(highscore.score)
               localStorage.btgame = JSON.stringify(highscore)
+              location.reload()
             })
           }
         }
@@ -311,12 +329,16 @@
     })
 
     $('#area').on('click', '.one', function () {
-      score++
-      $('#text-score').text(score)
       $(this).stop()
-      $(this).attr('src', `./images/${$(this).attr('alt')}2.png`)
-      $(this).fadeOut(1000)
+      $(this).attr('src', `./images/${$(this).attr('data-title')}2.png`)
+      $(this).fadeOut()
       $(this).removeClass('one').addClass('two')
+      if ($(this).attr('data-title') === role1) role1Score++
+      else role2Score++
+      $('#text-role1').text(`${role1Score} / ${role1Num}`)
+      $('#text-role2').text(`${role2Score} / ${role2Num}`)
+      score = role1Score + role2Score
+      $('#text-score').text(score)
     })
 
   </script>
