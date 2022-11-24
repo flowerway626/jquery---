@@ -11,7 +11,7 @@
     * {
       margin: 0;
       padding: 0;
-      transition: 0.s;
+      /* transition: 0.3s; */
     }
 
     body {
@@ -23,11 +23,6 @@
       overflow: hidden;
     }
 
-    #text,
-    #high {
-      color: #fff;
-      display: none;
-    }
 
     #area {
       width: 700px;
@@ -120,16 +115,64 @@
       background: #fff;
       cursor: pointer;
     }
+
+    #roleNum {
+      width: 700px;
+      margin: auto;
+      display: flex;
+      opacity: 0;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      align-items: center;
+      color: #fff;
+    }
+
+    .role {
+      text-align: center;
+      /* width: 50%; */
+    }
+
+    .role img {
+      width: 50px;
+    }
+
+    #text,
+    #high {
+      display: none;
+    }
   </style>
 </head>
 
 <body>
-  <div id="btnStart">開始</div>
-  <div id="text">
-    <p>| 剩餘 | <span id="text-time">0</span> 秒</p>
-    <p>| 得分 | <span id="text-score">0</span> 分</p>
-    <p>| 角色1 | <span id="text-role1"></span></p>
-    <p>| 角色2 | <span id="text-role2"></span></p>
+  <p>
+    遊戲說明
+
+    從 BT21 的角色中選擇 2 位做為遊戲的主角，遊戲畫面上方會顯示選擇的角色及對應的設定數
+    ，限時 20 秒內需達到指定的目標點擊數，成功則遊戲通關，否則遊戲失敗！
+
+    計分方式
+
+    成功點擊畫面中任一角色可獲得 1 分，以累計分數高低作為依據。
+    ※ 分數最高，但沒有達到目標點擊數的玩家是無法列入排行的
+
+    想成為一流的點擊王嗎？準備好了就開始遊戲吧！
+  </p>
+  <input type="button" id="btnStart" value="開始">
+  <div id="roleNum">
+    <div class="role">
+      <img src="./images/chimmy1.png" alt="">
+      <p>角色 1</p>
+      <span id="text-role1">0 / 0</span>
+    </div>
+    <div class="role">
+      <img src="./images/van1.png" alt="">
+      <p>角色 2</p>
+      <span id="text-role2">0 / 0</span>
+    </div>
+    <div id="text">
+      <p>| 剩餘 | <span id="text-time">0</span> 秒</p>
+      <p>| 得分 | <span id="text-score">0</span> 分</p>
+    </div>
   </div>
   <div id="high">
     <p>| 紀錄者 | <span id="text-highname">0</span></p>
@@ -204,13 +247,15 @@
     const highscore = localStorage.btgame ? JSON.parse(localStorage.btgame) : { name: '', score: 0 }
     $('#text-highscore').text(highscore.score)
     $('#text-highname').text(highscore.name)
-    $('#area').css('display', 'none')
+    $('#area').hide()
     // 選定正負角色
     $('#left .theme').each(function () {
       $(this).on('click', function () {
         click++
         if (click === 1) {
           $(this).css('border', '5px solid lightgray')
+          $('.role').eq(0).find('img').attr('src', $(this).find('img').attr('src'))
+          $('.role').eq(0).find('p').text($(this).find('p').text())
           $('#right .theme').eq(0).find('img').attr('src', $(this).find('img').attr('src'))
           $('#right .theme').eq(0).find('img').attr('data-title', $(this).find('img').attr('data-title'))
           $('#right .theme').eq(0).find('p').text($(this).find('p').text())
@@ -218,6 +263,8 @@
           role1 = $('#right .theme').find('img').eq(0).attr('data-title')
         } else if (click === 2) {
           $(this).css('border', '5px solid lightgray')
+          $('.role').eq(1).find('img').attr('src', $(this).find('img').attr('src'))
+          $('.role').eq(1).find('p').text($(this).find('p').text())
           $('#right .theme').eq(1).find('img').attr('src', $(this).find('img').attr('src'))
           $('#right .theme').eq(1).find('p').text($(this).find('p').text())
           $('#right .theme').eq(1).find('img').attr('data-title', $(this).find('img').attr('data-title'))
@@ -269,6 +316,7 @@
       $('#text-role1').text(`${role1Score} / ${role1Num}`)
       $('#text-role2').text(`${role2Score} / ${role2Num}`)
       $('#area, #text, #high').fadeIn()
+      $('#roleNum').css('opacity', 1)
       // 過關點擊要求數
 
       timer = setInterval(() => {
