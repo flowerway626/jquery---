@@ -254,7 +254,7 @@
           setTimeout(() => {
             top = Math.round(Math.random() * 100) + '%'
             left = Math.round(Math.random() * 100) + '%'
-            roleOther = roles[Math.round(Math.random() * 5)]
+            roleOther = roles[Math.round(Math.random() * 5)].toLowerCase()
             const others = $(`<img src="./images/${roleOther}1.png" class="one" data-title="${roleOther}" style="top: ${top}; left: ${left}">`)
             $('#area').append(others)
             move(others)
